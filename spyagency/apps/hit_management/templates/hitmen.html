@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2 class="display-4">List of Hitmen</h2>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Email</th>
+      <th scope="col">Description</th>
+      <th scope="col">Status</th>
+      <th scope="col">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for hitman in hitmen %}
+      <tr>
+        <td>{{ hitman.user.first_name }}</td>
+        <td>{{ hitman.user.email }}</td>
+        <td>{{ hitman.description }}</td>
+        <td>{{ hitman.status }}</td>
+        <td><a href="{% url 'hitmen_detail_view' hitman.id %}">edit</a></td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="5" class="text-center">No hitmen found.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

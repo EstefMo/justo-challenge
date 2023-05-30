@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2 class="display-4">Hitman Detail</h2>
+  {% if user.is_manager or user.is_superuser and hitman.status == 'ACTIVE' %}
+    <button onclick="change_status('INACTIVE')" class="btn btn-danger float-right ml-2">Deactivate User</button>
+  {% endif %}
+
+  <div class="card mt-5">
+    <div class="card-body">
+      <p class="card-text">Email: {{ hitman.user.email }}</p>
+      <div class="form-group">
+        <label for="description">Name:</label>
+        <input class="form-control" value="{{ hitman.user.first_name }}" id="name" required></input>
+      </div>
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea class="form-control" id="description" required>{{ hitman.description }}</textarea>
+      </div>
+      <p class="card-text">Status: {{ hitman.status }}</p>
+      <button onclick="savedata()" class="btn btn-success float-right ml-2 mt-2 mb-5">Save data</button>
+
+      {% if user.is_superuser %}
+        <div class="form-group mt-5">
+          <label for="managers">Lackeys: </label>
+          {% for lackey in lackeys %}
+            <button class="btn btn-primary ml-3">{{ lackey.0 }}</button>
+          {% endfor %}
+          <label>You can add more lackeys to this manager: </label>
+          <select multiple class="selectpicker form-control mt-1" id="lackey" required>
+            {% for hitman_select in hitmans %}
+              {% if hitman_select.id != hitman.id and hitman_select.id not in lackey_ids %}
+                <option value="{{ hitman_select.id }}">{{ hitman_select.user.email }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+        {% if hitman.status == "ACTIVE" %}
+          <button class="btn btn-primary" onclick="save_lackeys()">Add new Lackey</button>
+        {% endif %}
+      {% endif %}
+
+    </div>
+  </div>
+
+
+<script>
+
+   function savedata(){
+      var hitmanId = "{{ hitman.id }}";
+       var description = document.getElementById('description').value;
+        var name = document.getElementById('name').value;
+       fetch("{% url 'api_hitman_detail' hitman.id %}", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: JSON.stringify({
+          first_name: name,
+          description: description,
+          status: "{{hitman.status}}",
+        })
+      })
+      .then(function(response) {
+        if (response.ok) {
+          // Success
+          set_notification('alert-success', "Data modified successfully.");
+          setTimeout(function(){ window.location.reload() }, 4000)
+        } else {
+          set_notification('alert-danger',"Failed to modify data. Please try again.");
+          setTimeout(function(){ window.location.reload() }, 4000)
+        }
+      })
+      .catch(function(error) {
+        console.error("Error:", error);
+        set_notification('alert-danger',"An error occurred. Please try again later.");
+      });
+   }
+   function change_status(status){
+        var hitmanId = "{{ hitman.id }}";
+        var description = document.getElementById('description').value;
+       fetch("{% url 'api_hitman_detail' hitman.id %}", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: JSON.stringify({
+          description: description,
+          status: status,
+        })
+      })
+      .then(function(response) {
+        if (response.ok) {
+          // Success
+          set_notification('alert-success',"Status modified successfully .");
+          setTimeout(function(){ window.location.reload() }, 4000);
+        } else {
+          set_notification('alert-danger', "Failed to modify status. Please try again.");
+        }
+      })
+      .catch(function(error) {
+        console.error("Error:", error);
+        set_notification('alert-danger', "An error occurred. Please try again later.");
+      });
+    }
+  function save_lackeys() {
+  var hitmanId = {{ hitman.id }}
+  var lackeys = "{{ lackeys }}";
+  const tempElement = document.createElement('div');
+  tempElement.innerHTML = lackeys;
+  const textContent = tempElement.textContent;
+  const regex = /\d+/g;
+  const numbers = textContent != "[]" ? textContent.match(regex).map(Number) : [];
+  const uniqueNumbers = [...new Set(numbers)];
+  var new_lackey = document.getElementById('lackey').value;
+  uniqueNumbers.push(parseInt(new_lackey));
+
+ if (numbers.length > 0) {
+    fetch("{% url 'api_managers_detail' hitman.id %}", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: JSON.stringify({
+        hitman_id: parseInt(hitmanId),
+        lackeys: uniqueNumbers,
+      })
+    })
+      .then(function(response) {
+        if (response.ok) {
+          // Success
+          set_notification('alert-success', "Lackeys modified successfully.");
+          setTimeout(function(){ window.location.reload() }, 4000);
+        } else {
+          set_notification('alert-danger', "Failed to modify lackeys. Please try again.");
+
+        }
+      })
+      .catch(function(error) {
+        console.error("Error:", error);
+          set_notification('alert-danger', "An error occurred. Please try again later.");
+
+      });
+  } else {
+    fetch("{% url 'api_managers' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: JSON.stringify({
+        user: parseInt(hitmanId),
+        lackeys: uniqueNumbers,
+      })
+    })
+      .then(function(response) {
+        if (response.ok) {
+          // Success
+          set_notification('alert-success', "Lackeys modified successfully.");
+          setTimeout(function(){ window.location.reload() }, 4000);
+        } else {
+          set_notification('alert-danger', "Failed to modify lackeys. Please try again.");
+
+        }
+      })
+      .catch(function(error) {
+        console.error("Error:", error);
+          set_notification('alert-danger', "An error occurred. Please try again later.");
+
+      });
+  }
+}
+
+
+</script>
+{% endblock %}

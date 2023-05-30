@@ -1,0 +1,110 @@
+from django.contrib.auth.decorators import login_required
+from django.urls import path
+
+from .api_view import (
+    LoginView,
+    HitmanView,
+    HitView,
+    HitDetailView,
+    HitmanDetailView,
+    ManagerListAPIView,
+    ManagerDetailAPIView,
+    LogoutView,
+)
+from .views import (
+    login_view,
+    hits_view,
+    hit_detail_view,
+    create_hit_view,
+    hitmen_view,
+    Hitman_detail_view,
+    register_view,
+)
+
+urlpatterns = [
+    path(
+        route="api/login/",
+        view=LoginView.as_view(),
+        name="api_login",
+    ),
+    path(
+        route="api/logout/",
+        view=LogoutView.as_view(),
+        name="api_logout",
+    ),
+    path(
+        route="api/register/",
+        view=HitmanView.as_view(),
+        name="api_register",
+    ),
+    path(
+        route="api/hitman/",
+        view=HitmanView.as_view(),
+        name="api_hitmen",
+    ),
+    path(
+        route="api/hitman/detail/<int:hitman_id>/",
+        view=HitmanDetailView.as_view(),
+        name="api_hitman_detail",
+    ),
+    path(
+        route="api/hits/",
+        view=HitView.as_view(),
+        name="api_hits",
+    ),
+    path(
+        route="api/hit/create/",
+        view=HitView.as_view(),
+        name="api_create_hits",
+    ),
+    path(
+        route="api/hits/detail/<int:hit_id>/",
+        view=HitDetailView.as_view(),
+        name="api_hits_detail",
+    ),
+    path(
+        route="api/managers/",
+        view=ManagerListAPIView.as_view(),
+        name="api_managers"
+    ),
+    path(
+        route="api/managers/<int:hitman_id>/",
+        view=ManagerDetailAPIView.as_view(),
+        name="api_managers_detail",
+    ),
+    path(
+        route="",
+        view=login_view,
+        name="login",
+    ),
+    path(
+        route="register/",
+        view=register_view,
+        name="register_view",
+    ),
+    path(
+        route="hits/",
+        view=login_required(hits_view),
+        name="hits",
+    ),
+    path(
+        route="hit/<int:hit_id>/",
+        view=hit_detail_view,
+        name="hit_detail",
+    ),
+    path(
+        route="hits/create/",
+        view=create_hit_view,
+        name="create_hits",
+    ),
+    path(
+        route="hitmen/",
+        view=hitmen_view,
+        name="hitmen_list",
+    ),
+    path(
+        route="hitmen/detail/<int:hitman_id>/",
+        view=Hitman_detail_view,
+        name="hitmen_detail_view",
+    ),
+]

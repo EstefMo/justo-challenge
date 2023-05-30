@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+      <div class="login-container">
+        <h2  class="text-center">Registration</h2>
+        <form class="mt-4" id="register-form" method="post" action="{% url 'api_register' %}">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" name="email" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" class="form-control" name="password" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Register</button>
+          <div class="col-12 text-center mt-3">
+            <a class="text-center col-12 mt-5" style="width: 100% " href="{% url 'login' %}">Sign up with your account</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script>
+    document.getElementById('register-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      var formData = new FormData(this);
+
+      fetch('/api/register/', {
+          method: 'POST',
+          body: formData
+      })
+      .then(function(response) {
+      console.log(response)
+          if (response.ok) {
+              document.getElementById('register-form').remove();
+              window.location.href = "/"
+          } else {
+              set_notification('alert-danger', 'Register failed. This email is already registered.')
+
+          }
+      })
+      .catch(function(error) {
+          console.error('Error:', error);
+          set_notification('alert-danger', error['email']);
+      });
+    });
+  </script>
+{% endblock %}

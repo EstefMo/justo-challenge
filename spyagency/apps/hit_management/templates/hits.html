@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>List of Hits</h2>
+{% if user.is_manager or user.is_superuser %}
+  <a href="{% url 'create_hits' %}"><button id="create-hit-button" class="btn btn-primary float-right mb-2">Create Hit</button></a>
+{% endif %}
+  <div class="table-responsive mt-2">
+    <table class="table table-striped table-bordered">
+      <thead class="thead-dark">
+        <tr>
+          <th>Assignee</th>
+          <th>Description</th>
+          <th>Target Name</th>
+          <th>Status</th>
+          <th>Creator</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for hit in hits %}
+          <tr>
+            <td>{{ hit.assignee_name }}</td>
+            <td>{{ hit.description }}</td>
+            <td>{{ hit.target_name }}</td>
+            <td>{{ hit.status }}</td>
+            <td>{{ hit.creator_name }}</td>
+            <td><a href="{% url 'hit_detail' hit.id %}">edit</a></td>
+
+          </tr>
+        {% empty %}
+          <tr>
+            <td class="text-center" colspan="6">No hits found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
